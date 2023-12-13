@@ -6,7 +6,7 @@
 /*   By: faveline <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 11:27:38 by faveline          #+#    #+#             */
-/*   Updated: 2023/12/13 11:24:14 by faveline         ###   ########.fr       */
+/*   Updated: 2023/12/13 13:02:37 by faveline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,10 @@ int	ft_read_prompt(t_arg *arg)
 			if (ft_parser(arg) < 0)
 				ft_error_ms(error_malloc);
 			while (arg->parser[++j].name)
+			{
 				printf("%s\n", arg->parser[j].name);
+				printf("%c\n", arg->parser[j].ope);
+			}
 			ft_exterminate(arg);
 		}
 		str = ft_display_prompt();

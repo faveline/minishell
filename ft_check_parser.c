@@ -6,7 +6,7 @@
 /*   By: faveline <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 13:56:00 by faveline          #+#    #+#             */
-/*   Updated: 2023/12/13 12:02:36 by faveline         ###   ########.fr       */
+/*   Updated: 2023/12/13 12:57:42 by faveline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,13 @@ int ft_move_if_g_char(char *arg, int i)
 {
 	if (arg[i] == 39)
 	{
+		i++;
 		while (arg[i] && arg[i] != 39)
 			i++;
 	}
 	else if (arg[i] == '"')
 	{
+		i++;
 		while (arg[i] && (arg[i] != '"'
 			|| (arg[i - 1] == 92 && arg[i] == '"')))
 			i++;

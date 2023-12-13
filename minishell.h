@@ -6,7 +6,7 @@
 /*   By: faveline <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 10:51:43 by faveline          #+#    #+#             */
-/*   Updated: 2023/12/12 18:10:19 by faveline         ###   ########.fr       */
+/*   Updated: 2023/12/13 15:18:43 by faveline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,5 +47,9 @@ void	ft_error_ms(int error);
 int		ft_move_if_g(t_arg *arg, int i);
 int		ft_parser(t_arg *arg);
 void	ft_exterminate(t_arg *arg);
+void	ft_ini_ope(t_arg *arg, int i, int k);
+void	ft_g_cases(t_arg *arg, int *i, int *j, int k);
+int		ft_move_if_p(t_arg *arg, int i);
+void	ft_p_cases(t_arg *arg, int *i, int *j, int k);
 
 #endif
