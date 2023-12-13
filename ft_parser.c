@@ -6,7 +6,7 @@
 /*   By: faveline <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 13:43:48 by faveline          #+#    #+#             */
-/*   Updated: 2023/12/12 18:23:07 by faveline         ###   ########.fr       */
+/*   Updated: 2023/12/13 12:31:39 by faveline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,15 @@ static void	ft_nbr_cmd(t_arg *arg)
 		nbr_cpy = arg->nbr_par;
 		if (arg->input[i] == '(')
 		{
-			while (nbr_cpy > 0)
+			while (arg->input[i] && nbr_cpy > 0)
 			{
 				if (arg->input[i] == ')')
 					nbr_cpy--;
 				else
 					i++;
 			}
+			if (!arg->input[i])
+				i--;
 			arg->nbr_cmd++;
 		}
 		if (arg->input[i] == '&')
@@ -50,36 +52,107 @@ static void	ft_nbr_cmd(t_arg *arg)
 	}
 }
 
-static void	ft_g_cases(t_arg *arg, int i, int j, int k)
+static void	ft_g_cases(t_arg *arg, int *i, int *j, int k)
 {
-	if (arg->input[i] == 39)
+	int	x;
+	int	y;
+
+	x = *i;
+	y = *j;
+	if (arg->input[x] == 39)
 	{
-		while (arg->input[i] && arg->input[i] != 39)
+		arg->parser[k].name[y] = arg->input[x];
+		y++;
+		x++;	
+		while (arg->input[x] && arg->input[x] != 39)
 		{
-			arg->parser[k].name[j] = arg->input[i];
-			j++;
-			i++;
+			arg->parser[k].name[y] = arg->input[x];
+			y++;
+			x++;
 		}
 	}
-	else if (arg->input[i] == '"')
+	else if (arg->input[x] == '"')
 	{
-		while (arg->input[i] && (arg->input[i] != '"'
-					|| (arg->input[i - 1] == 92 && arg->input[i] == '"')))
+		arg->parser[k].name[y] = arg->input[x];
+		y++;
+		x++;
+		while (arg->input[x] && (arg->input[x] != '"'
+					|| (arg->input[x - 1] == 92 && arg->input[x] == '"')))
 		{
-			arg->parser[k].name[j] = arg->input[i];
-			j++;
-			i++;
+			arg->parser[k].name[y] = arg->input[x];
+			y++;
+			x++;
 		}
 	}
+	*i = x;
+	*j = y;
+}
+
+static int	ft_move_if_p(t_arg *arg, int i)
+{
+	if (arg->input[i] == '(')
+	{
+		i++;
+		while (arg->input[i] && arg->input[i] != ')')
+		{
+			i = ft_move_if_g(arg, i);
+			i = ft_move_if_p(arg, i);
+			if (arg->input[i])
+				i++;
+		}
+		return (i);
+	}
+	else
+		return (i);
+}
+
+static void	ft_p_cases(t_arg *arg, int *i, int *j, int k)
+{
+	int	x;
+	int	y;
+	int	tmp;
+
+	x = *i;
+	y = *j;
+	if (arg->input[x] == '(')
+	{
+		arg->parser[k].name[y] = arg->input[x];
+		y++;
+		x++;
+		x = ft_move_if_g(arg, x);
+		tmp = ft_move_if_p(arg, x);
+		while (x <= tmp)
+		{
+			arg->parser[k].name[y] = arg->input[x];
+			y++;
+			x++;
+		}
+		while (arg->input[x] && arg->input[x] != ')')
+		{
+			arg->parser[k].name[y] = arg->input[x];
+			y++;
+			x++;
+			x = ft_move_if_g(arg, x);
+		}
+	}
+	*i = x;
+	*j = y;
 }
 
 static int	ft_size_name(t_arg *arg, int i)
 {
 	int	size;
+	int	j;
 
 	size = 1;
 	while (arg->input[i])
 	{
+		j = ft_move_if_g(arg, i);
+		size = size + j - i;
+		i = j;
+		j = ft_move_if_p(arg, i);
+		size = size + j - i;
+		i = j;
 		if (arg->input[i] == '&' || arg->input[i] == '|')
 			return (size);
 		size++;
@@ -99,7 +172,7 @@ static int	ft_ini_parser(t_arg *arg)
 	while (arg->input[i])
 	{
 		j = 0;
-		arg->parser[k].name = (char *)malloc(ft_size_name(arg, i) * sizeof(char));
+		arg->parser[k].name = (char *)malloc((ft_size_name(arg, i) + 2) * sizeof(char));
 		if (arg->parser[k].name == NULL)
 			return (-1);
 		while (arg->input[i] && arg->input[i] != '&' && arg->input[i] != '|')
@@ -107,13 +180,17 @@ static int	ft_ini_parser(t_arg *arg)
 			arg->parser[k].name[j] = arg->input[i];
 			j++;
 			i++;
-			ft_g_cases(arg, i, j, k);
+			ft_g_cases(arg, &i, &j, k);
+			ft_p_cases(arg, &i, &j, k);
 		}
-		while (arg->input[i] && (arg->input[i] == '|' || arg->input[i] == '&'
-					|| arg->input[i] == '<' || arg->input[i] == '>'))
+		if (arg->input[i] == '&')
+			arg->parser[k].ope = '&';
+		else if (arg->input[i] == '|')
+			arg->parser[k].ope = '|';
+		arg->parser[k].ok = 1;
+		while (arg->input[i] && (arg->input[i] == '|' || arg->input[i] == '&'))
 			i++;
 		arg->parser[k].name[j] = '\0';
-//		printf("%s\n", arg->parser[k].name);
 		k++;
 	}
 	arg->parser[k].name = NULL;

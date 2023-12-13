@@ -6,7 +6,7 @@
 /*   By: faveline <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/12 11:27:38 by faveline          #+#    #+#             */
-/*   Updated: 2023/12/12 18:31:59 by faveline         ###   ########.fr       */
+/*   Updated: 2023/12/13 11:24:14 by faveline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,10 @@ int	ft_read_prompt(t_arg *arg)
 		add_history(arg->input);
 		arg->nbr_par = ft_check_pars(arg->input);
 		if (arg->nbr_par < 0)
+		{
 			ft_error_ms(error_parse);
+			ft_printf("near %c\n", arg->input[-arg->nbr_par]);
+		}
 		else 
 		{
 			if (ft_parser(arg) < 0)
